@@ -1,0 +1,95 @@
+{#-
+  Template for the generated schema diagram page (docs/schema_diagram.md).
+
+  Every name and definition here comes from the LinkML schema via
+  scripts/gen_schema_diagram.py. The only prose written by hand is `intro`,
+  which lives in diagram-layout.yaml.
+
+  `box` renders one node of the diagram and calls itself for the nodes inside
+  it. Cards (classes with nothing nested in them) and levels (classes that
+  contain others) go in separate rows: letting them share one flow puts a lone
+  card beside a whole nested level, which reads as an accident rather than a
+  structure.
+-#}
+{%- macro box(node) -%}
+{% if node.children %}
+<div class="zapp-box zapp-box--d{{ node.tint }}">
+<span class="zapp-box__title"><a class="zapp-box__link" href="#{{ node.anchor }}" title="{{ node.description|e }}">{{ node.label|e }}</a></span>
+{% if node.cards %}
+<div class="zapp-box__cards">
+{% for child in node.cards %}
+{{ box(child) }}
+{% endfor %}
+</div>
+{% endif %}
+{% if node.levels %}
+<div class="zapp-box__levels">
+{% for child in node.levels %}
+{{ box(child) }}
+{% endfor %}
+</div>
+{% endif %}
+</div>
+{%- else %}
+<a class="zapp-leaf" href="#{{ node.anchor }}" title="{{ node.description|e }}">{{ node.label|e }}</a>
+{%- endif %}
+{%- endmacro -%}
+
+{%- macro reference(class_name) -%}
+[Full schema reference for {{ class_name }} →](../{{ class_name }}/)
+{%- endmacro -%}
+
+# Schema Diagram
+
+{{ intro }}
+
+{# The diagram gets a heading of its own so the table of contents has something
+   to point at, and so it sits level with the sections below it. -#}
+## Overview
+
+<style>
+{{ css }}
+</style>
+
+<div class="zapp-diagram">
+{% for node in nodes %}
+{{ box(node) }}
+{% endfor %}
+</div>
+
+{# The page follows the diagram: each level that contains others gets a section,
+   with the cards drawn inside it as its subsections. -#}
+{% for level in levels %}
+---
+
+## {{ level.label }} {: .zapp-concept }
+
+{{ level.description }}
+
+{{ reference(level.class_name) }}
+
+{% for card in level.cards %}
+### {{ card.label }}
+
+{{ card.description }}
+
+{{ reference(card.class_name) }}
+
+{% endfor %}
+{%- endfor %}
+{%- if excluded %}
+---
+
+## Other classes
+
+These classes are part of the schema but are left out of the diagram above to keep it readable.
+
+{% for item in excluded %}
+### {{ item.name }}
+
+{{ item.description }}
+
+{{ reference(item.name) }}
+
+{% endfor %}
+{%- endif %}
