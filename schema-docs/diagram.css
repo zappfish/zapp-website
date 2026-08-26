@@ -1,0 +1,130 @@
+.zapp-diagram {
+  --zapp-accent: #1f6feb;
+  --zapp-gap: .5rem;
+  --zapp-pad: .8rem;
+  --zapp-radius: .5rem;
+  margin: 1.75rem 0;
+  line-height: 1.35;
+}
+
+.zapp-box {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--zapp-accent) 45%, transparent);
+  border-radius: var(--zapp-radius);
+  padding: var(--zapp-pad);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+/* Each level of nesting deepens the tint slightly, so depth reads at a glance. */
+.zapp-box--d0 { background: color-mix(in srgb, var(--zapp-accent)  6%, transparent); }
+.zapp-box--d1 { background: color-mix(in srgb, var(--zapp-accent) 12%, transparent); }
+.zapp-box--d2 { background: color-mix(in srgb, var(--zapp-accent) 19%, transparent); }
+.zapp-box--d3 { background: color-mix(in srgb, var(--zapp-accent) 27%, transparent); }
+
+/* Deliberately not uppercased: class names are CamelCase and uppercasing them
+   runs the words together ("EXPOSUREEVENT"). */
+.zapp-box__title {
+  display: block;
+  margin: 0 0 var(--zapp-gap);
+  padding-bottom: .45rem;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  font-weight: 700;
+  font-size: .95rem;
+  letter-spacing: .01em;
+}
+
+/* The whole box is the click target, not just its label. A box cannot simply be
+   wrapped in an <a> because boxes nest and nested anchors are invalid, so the
+   title's link is stretched over its own box and the children are lifted onto a
+   layer above it -- each child then captures its own clicks. */
+.zapp-box__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+/* Both rows sit above the box's stretched link, but their own empty space must
+   not swallow clicks meant for the box behind them -- so only the cards and
+   levels themselves are hit-tested. */
+.zapp-box__cards,
+.zapp-box__levels {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.zapp-box__cards > *,
+.zapp-box__levels > * { pointer-events: auto; }
+
+/* Two equal columns, capped short of the full width. Equal tracks keep every
+   card the same size whatever its label, and the cap stops a pair of cards from
+   stretching the whole width of a level. */
+.zapp-box__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--zapp-gap);
+  width: min(100%, 26rem);
+}
+
+/* A nested level always takes a full-width band of its own. */
+.zapp-box__levels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zapp-gap);
+}
+.zapp-box__cards + .zapp-box__levels { margin-top: var(--zapp-gap); }
+
+.zapp-box, a.zapp-leaf { cursor: pointer; }
+/* Highlight only the innermost box under the pointer, never its ancestors too. */
+.zapp-box:hover:not(:has(.zapp-box:hover, .zapp-leaf:hover)),
+.zapp-box:focus-within:not(:has(.zapp-box:focus-within, .zapp-leaf:focus)) {
+  border-color: var(--zapp-accent);
+  box-shadow: inset 0 0 0 1px var(--zapp-accent),
+              0 2px 10px color-mix(in srgb, var(--zapp-accent) 22%, transparent);
+}
+
+.zapp-leaf {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 2.25rem;
+  padding: .45rem .75rem;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: calc(var(--zapp-radius) - .15rem);
+  background: var(--md-default-bg-color, #fff);
+  font-weight: 500;
+  font-size: .84rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+a.zapp-leaf:hover,
+a.zapp-leaf:focus-visible {
+  border-color: var(--zapp-accent);
+  box-shadow: inset 0 0 0 1px var(--zapp-accent),
+              0 2px 8px color-mix(in srgb, var(--zapp-accent) 22%, transparent);
+}
+
+/* Links are the class names themselves; keep them readable, not link-blue.
+   No underline on hover either: the box highlight is the affordance. */
+.zapp-diagram a { color: inherit; text-decoration: none; }
+.zapp-diagram a:focus-visible {
+  outline: 2px solid var(--zapp-accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .zapp-box, .zapp-leaf { transition: none; }
+}
+
+/* Headings for the four concepts the diagram is built around. Sized up so they
+   read as sections in their own right rather than as peers of the supporting
+   classes nested under them. Tagged via attr_list in the generated markdown. */
+.md-typeset h2.zapp-concept {
+  font-size: 1.9em;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin-top: .8em;
+}
+@media screen and (max-width: 45em) {
+  .zapp-diagram { --zapp-pad: .6rem; }
+  .zapp-box__cards { grid-template-columns: 1fr; width: 100%; }
+}

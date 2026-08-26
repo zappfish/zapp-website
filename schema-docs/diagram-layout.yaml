@@ -1,0 +1,60 @@
+---
+# Curated layout for the ZAPP schema diagram.
+#
+# This file controls STRUCTURE ONLY — which classes appear in the diagram and how
+# they nest. Every name and every definition on the generated page comes from the
+# LinkML schema itself, so the prose can never drift out of sync.
+#
+# The build FAILS if this file and the schema disagree. Specifically, every
+# non-abstract class in the schema must appear either under `diagram:` or under
+# `excluded:`. When someone adds a class to the schema, the build breaks until it
+# is placed or deliberately excluded here. Abstract classes are skipped
+# automatically.
+
+# Short framing text for the top of the page. Editorial, not a definition.
+intro: |-
+  Four concepts carry most of the meaning in this schema: **Study**, **Experiment**,
+  **Exposure Event**, and **Phenotype outcomes**. Each nests inside the one before it —
+  a Study contains Experiments, an Experiment contains Exposure Events, and an Exposure
+  Event produces Phenotype Outcomes.
+
+# The nesting shown in the diagram.
+#
+#   class:    a class name from the schema (required to exist)
+#   label:    OPTIONAL display label. Prefer adding `title:` to the class in the
+#             schema instead; this is here for wording the schema doesn't carry.
+#   contains: children, drawn nested inside
+diagram:
+  - class: Study
+    contains:
+      - class: Experiment
+        contains:
+          - class: Fish
+          - class: Control
+          - class: ExposureEvent
+            label: Exposure Event
+            contains:
+              - class: StressorChemical
+                label: Stressor chemical
+              - class: VehicleOfTransmission
+                label: Vehicle
+              - class: ExposureRoute
+                label: Route
+              - class: Regimen
+              - class: PhenotypeObservationSet
+                label: Phenotype Outcome
+                contains:
+                  - class: Phenotype
+                  - class: Image
+
+# Classes deliberately kept out of the diagram. They are still documented on the
+# page, using their schema descriptions.
+excluded:
+  - PhenotypeTerm
+  - ControlImage
+  - ExposureType
+  - QuantityValue
+  - ResearchGroup
+  - ResearchGroupMember
+  - ChemicalCabinetEntry
+  - FishTankEntry
